@@ -1,0 +1,43 @@
+---
+- name: Run k3s installation script
+  shell: curl -sfL https://get.k3s.io | sh -
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Wait for kubeconfig to be generated
+  wait_for:
+    path: /etc/rancher/k3s/k3s.yaml
+
+- name: Read kubeconfig from server
+  slurp:
+    src: /etc/rancher/k3s/k3s.yaml
+  register: kubeconfig_raw
+
+- name: Merge k3s config into main kubeconfig
+  delegate_to: localhost
+  become: false
+  shell: |
+    # Create a temp file for the k3s config
+    TEMP_KUBECONFIG=$(mktemp)
+    echo "{{ kubeconfig_raw['content'] | b64decode }}" > "$TEMP_KUBECONFIG"
+
+    # Update the server IP
+    sed -i "s/127.0.0.1/{{ inventory_hostname | regex_replace('^.*@', '') }}/g" "$TEMP_KUBECONFIG"
+
+    # Rename entries to 'homelab'
+    kubectl config --kubeconfig="$TEMP_KUBECONFIG" rename-context default homelab || true
+    sed -i 's/cluster: default/cluster: homelab/g' "$TEMP_KUBECONFIG"
+    sed -i 's/user: default/user: homelab/g' "$TEMP_KUBECONFIG"
+    sed -i 's/name: default/name: homelab/g' "$TEMP_KUBECONFIG"
+
+    # Merge into main config
+    mkdir -p ~/.kube
+    touch ~/.kube/config
+    KUBECONFIG=~/.kube/config:"$TEMP_KUBECONFIG" kubectl config view --flatten > ~/.kube/config.new
+    mv ~/.kube/config.new ~/.kube/config
+    chmod 600 ~/.kube/config
+
+    # Clean up
+    rm "$TEMP_KUBECONFIG"
+
+

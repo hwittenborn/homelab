@@ -1,0 +1,64 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: hunter@hunterwittenborn.com
+    privateKeySecretRef:
+      name: letsencrypt-prod-account-key
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: traefik
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: bitwarden-cluster-store
+spec:
+  provider:
+    bitwardensecretsmanager:
+      apiURL: https://vault.bitwarden.com/api
+      identityURL: https://vault.bitwarden.com/identity
+      bitwardenServerSDKURL: "https://bitwarden-sdk-server.external-secrets.svc.cluster.local:9998"
+      organizationID: "8fd1fcdf-8a83-4f8b-a5e5-b2fc017132e6"
+      projectID: "790f7ba2-3f7f-45c3-a017-b3f201528bac"
+      caProvider:
+        type: Secret
+        name: bitwarden-tls-certs
+        namespace: external-secrets
+        key: ca.crt
+      auth:
+        secretRef:
+          credentials:
+            name: bitwarden-sm-token
+            key: token
+            namespace: external-secrets
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-sdk-server-tls
+  namespace: external-secrets
+spec:
+  secretName: bitwarden-tls-certs
+  isCA: false
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS1
+    size: 2048
+  dnsNames:
+    - bitwarden-sdk-server.external-secrets.svc.cluster.local
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

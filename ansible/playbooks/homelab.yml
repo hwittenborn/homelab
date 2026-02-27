@@ -1,0 +1,6 @@
+---
+- name: Setup Homelab
+  hosts: homelab
+  become: true
+  roles:
+    - k3s

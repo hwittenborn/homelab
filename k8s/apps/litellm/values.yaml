@@ -1,0 +1,29 @@
+litellm:
+  image: docker.litellm.ai/berriai/litellm:main-stable
+  masterKeySecretId: "7cdf6cd2-6494-44b0-baa0-b3fe0103559e"
+  storeModelInDb: "True"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+postgres:
+  image: postgres:16
+  db: litellm
+  user: litellm
+  passwordSecretId: "455c490e-8db3-4ac1-a78c-b3fe01036ffa"
+  storage: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+ingress:
+  enabled: true
+  className: traefik
+  host: litellm.hunterwittenborn.com
+  clusterIssuer: letsencrypt-prod

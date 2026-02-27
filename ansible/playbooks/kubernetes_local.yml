@@ -1,0 +1,8 @@
+---
+- name: Manage Kubernetes Secrets Locally
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  roles:
+    - bitwarden_k8s_secrets

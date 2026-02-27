@@ -1,0 +1,20 @@
+---
+- name: Ensure external-secrets namespace exists
+  kubernetes.core.k8s:
+    state: present
+    api_version: v1
+    kind: Namespace
+    name: external-secrets
+
+- name: Create or update Bitwarden token secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: bitwarden-sm-token
+        namespace: external-secrets
+      type: Opaque
+      stringData:
+        token: "{{ bitwarden_token }}"
