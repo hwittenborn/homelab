@@ -1,0 +1,5 @@
+apiVersion: v2
+name: velero-infra
+description: rclone S3 gateway and credentials for Velero backups
+type: application
+version: 0.1.0

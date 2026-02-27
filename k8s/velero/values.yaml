@@ -1,0 +1,15 @@
+rcloneConfig:
+  secretId: "1f9c3e9d-8869-4dba-8656-b3fe0125535c"
+
+repoCredentials:
+  secretId: "70795994-45cc-4a28-8e08-b3fe012d8291"
+
+rcloneGateway:
+  image: rclone/rclone:latest
+  driveRemotePath: "gdrive:"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
