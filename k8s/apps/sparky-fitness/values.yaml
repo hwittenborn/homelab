@@ -1,0 +1,36 @@
+server:
+  image: codewithcj/sparkyfitness_server:latest
+
+frontend:
+  image: codewithcj/sparkyfitness:latest
+
+postgres:
+  image: postgres:15-alpine
+  db: sparkyfitness_db
+  user: sparky
+  storage: 5Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+config:
+  appDbUser: sparky_app
+  logLevel: ERROR
+  disableSignup: "false"
+  adminEmail: "hunter@hunterwittenborn.com"
+  forceEmailLogin: "true"
+
+secrets:
+  dbPasswordSecretId: "3f8333a2-a84a-4f51-82d2-b3fe01444bcc"
+  appDbPasswordSecretId: "0ee9608f-c232-4ec8-8e4d-b3fe01447ce3"
+  apiEncryptionKeySecretId: "18d858b7-d48e-4f85-8174-b3fe0144b23a"
+  betterAuthSecretSecretId: "474962a8-211e-451e-81bb-b3fe0144d285"
+
+ingress:
+  enabled: true
+  className: traefik
+  host: sparky.hunterwittenborn.com
+  clusterIssuer: letsencrypt-prod

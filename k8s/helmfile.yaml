@@ -45,6 +45,13 @@ releases:
     needs:
       - external-secrets/eso-configuration
 
+  - name: sparky-fitness
+    namespace: sparky-fitness
+    chart: ./apps/sparky-fitness
+    createNamespace: true
+    needs:
+      - external-secrets/eso-configuration
+
   - name: velero-infra
     namespace: velero
     chart: ./velero
