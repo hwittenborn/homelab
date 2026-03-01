@@ -1,8 +1,8 @@
 server:
-  image: codewithcj/sparkyfitness_server:latest
+  image: codewithcj/sparkyfitness_server:0.16.4.8
 
 frontend:
-  image: codewithcj/sparkyfitness:latest
+  image: codewithcj/sparkyfitness:0.16.4.8
 
 postgres:
   image: postgres:15-alpine
