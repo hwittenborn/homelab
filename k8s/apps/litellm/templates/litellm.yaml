@@ -33,6 +33,53 @@ spec:
                 secretKeyRef:
                   name: {{include "litellm.secretName" .}}
                   key: LITELLM_MASTER_KEY
+{{- if .Values.litellm.docsUrl }}
+            - name: DOCS_URL
+              value: {{ .Values.litellm.docsUrl | quote }}
+{{- end }}
+{{- if .Values.litellm.rootRedirectUrl }}
+            - name: ROOT_REDIRECT_URL
+              value: {{ .Values.litellm.rootRedirectUrl | quote }}
+{{- end }}
+{{- if .Values.sso.enabled }}
+            - name: GENERIC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "litellm.secretName" . }}
+                  key: GENERIC_CLIENT_ID
+            - name: GENERIC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "litellm.secretName" . }}
+                  key: GENERIC_CLIENT_SECRET
+            - name: GENERIC_AUTHORIZATION_ENDPOINT
+              value: {{ .Values.sso.authEndpoint | quote }}
+            - name: GENERIC_TOKEN_ENDPOINT
+              value: {{ .Values.sso.tokenEndpoint | quote }}
+            - name: GENERIC_USERINFO_ENDPOINT
+              value: {{ .Values.sso.userInfoEndpoint | quote }}
+            - name: GENERIC_SCOPE
+              value: {{ .Values.sso.scope | quote }}
+            - name: GENERIC_CLIENT_STATE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "litellm.secretName" . }}
+                  key: GENERIC_CLIENT_STATE
+            - name: PROXY_BASE_URL
+              value: "https://{{ .Values.ingress.host }}"
+            - name: GENERIC_USER_ID_ATTRIBUTE
+              value: {{ .Values.sso.userIdAttribute | quote }}
+            - name: GENERIC_USER_EMAIL_ATTRIBUTE
+              value: {{ .Values.sso.userEmailAttribute | quote }}
+{{- if .Values.sso.adminId }}
+            - name: PROXY_ADMIN_ID
+              value: {{ .Values.sso.adminId | quote }}
+{{- end }}
+{{- if .Values.sso.autoRedirectToSSO }}
+            - name: AUTO_REDIRECT_UI_LOGIN_TO_SSO
+              value: {{ .Values.sso.autoRedirectToSSO | quote }}
+{{- end }}
+{{- end }}
           livenessProbe:
             httpGet:
               path: /health/liveliness

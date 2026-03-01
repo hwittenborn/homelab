@@ -2,6 +2,8 @@ litellm:
   image: docker.litellm.ai/berriai/litellm:main-stable
   masterKeySecretId: "7cdf6cd2-6494-44b0-baa0-b3fe0103559e"
   storeModelInDb: "True"
+  docsUrl: "/docs"
+  rootRedirectUrl: "/ui"
   resources:
     requests:
       cpu: 100m
@@ -27,3 +29,17 @@ ingress:
   className: traefik
   host: litellm.hunterwittenborn.com
   clusterIssuer: letsencrypt-prod
+
+sso:
+  enabled: true
+  clientIdSecretId: "c8153b74-be28-484e-bb3e-b400006cfbfe"
+  clientSecretSecretId: "67c2ef64-7c35-4755-8215-b400006d11d9"
+  clientStateSecretId: "818569df-98ab-46a2-83fc-b400006d8431"
+  authEndpoint: "https://clerk.hunterwittenborn.com/oauth/authorize"
+  tokenEndpoint: "https://clerk.hunterwittenborn.com/oauth/token"
+  userInfoEndpoint: "https://clerk.hunterwittenborn.com/oauth/userinfo"
+  scope: "openid profile email"
+  userIdAttribute: "sub"
+  userEmailAttribute: "email"
+  adminId: "user_3AJzTWpt47JGfsAFiKnEi8MNmNI"
+  autoRedirectToSSO: true
