@@ -1,0 +1,37 @@
+n8n:
+  image: docker.n8n.io/n8nio/n8n:latest
+  timezone: America/Chicago
+  storage: 5Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
+
+postgres:
+  image: postgres:16
+  db: n8n
+  user: n8n
+  schema: public
+  storage: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+ingress:
+  enabled: true
+  className: traefik
+  host: n8n.hunterwittenborn.com
+  clusterIssuer: letsencrypt-prod
+
+secretsBootstrap:
+  secretName: n8n-secrets
+  data:
+    - secretKey: DB_POSTGRESDB_PASSWORD
+      remoteKey: "0e46c0f8-8bef-4749-91f8-b414016a3bca"
+    - secretKey: N8N_ENCRYPTION_KEY
+      remoteKey: "54407f93-969f-4f17-8c8a-b414016a6f75"

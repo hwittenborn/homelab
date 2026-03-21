@@ -111,3 +111,10 @@ releases:
     createNamespace: true
     needs:
       - external-secrets/eso-configuration
+
+  - name: n8n
+    namespace: n8n
+    chart: ./apps/n8n
+    createNamespace: true
+    needs:
+      - external-secrets/eso-configuration
