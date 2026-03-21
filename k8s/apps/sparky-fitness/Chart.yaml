@@ -1,6 +1,0 @@
-apiVersion: v2
-name: sparky-fitness
-description: SparkyFitness with Postgres backend
-type: application
-version: 0.1.1
-appVersion: "0.16.4.8"

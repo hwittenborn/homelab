@@ -19,7 +19,6 @@ releases:
     chart: external-secrets/external-secrets
     version: 2.0.1
     createNamespace: true
-    wait: true
     set:
       - name: bitwarden-sdk-server.enabled
         value: true
@@ -31,6 +30,16 @@ releases:
     chart: ./external-secrets
     needs:
       - external-secrets/external-secrets
+    hooks:
+      - events: ["presync"]
+        command: kubectl
+        args:
+          - wait
+          - --namespace
+          - external-secrets
+          - --for=condition=Available
+          - deployment/external-secrets-webhook
+          - --timeout=180s
 
   - name: traefik-config
     namespace: kube-system
@@ -39,13 +48,6 @@ releases:
   - name: litellm
     namespace: litellm
     chart: ./apps/litellm
-    createNamespace: true
-    needs:
-      - external-secrets/eso-configuration
-
-  - name: sparky-fitness
-    namespace: sparky-fitness
-    chart: ./apps/sparky-fitness
     createNamespace: true
     needs:
       - external-secrets/eso-configuration

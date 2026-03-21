@@ -1,0 +1,5 @@
+apiVersion: v2
+name: secrets-bootstrap
+description: Shared ExternalSecret bootstrap helpers
+type: library
+version: 0.1.0

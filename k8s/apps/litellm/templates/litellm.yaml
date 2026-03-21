@@ -28,6 +28,8 @@ spec:
               value: "postgresql://{{ .Values.postgres.user }}:$(POSTGRES_PASSWORD)@postgres:5432/{{ .Values.postgres.db }}"
             - name: STORE_MODEL_IN_DB
               value: {{.Values.litellm.storeModelInDb | quote}}
+            - name: LITELLM_DROP_PARAMS
+              value: "True"
             - name: LITELLM_MASTER_KEY
               valueFrom:
                 secretKeyRef:

@@ -1,21 +1,19 @@
 litellm:
   image: docker.litellm.ai/berriai/litellm:main-stable
-  masterKeySecretId: "7cdf6cd2-6494-44b0-baa0-b3fe0103559e"
   storeModelInDb: "True"
   docsUrl: "/docs"
   rootRedirectUrl: "/ui"
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 250m
+      memory: 512Mi
     limits:
-      memory: 1Gi
+      memory: 2Gi
 
 postgres:
   image: postgres:16
   db: litellm
   user: litellm
-  passwordSecretId: "455c490e-8db3-4ac1-a78c-b3fe01036ffa"
   storage: 5Gi
   resources:
     requests:
@@ -32,9 +30,6 @@ ingress:
 
 sso:
   enabled: true
-  clientIdSecretId: "c8153b74-be28-484e-bb3e-b400006cfbfe"
-  clientSecretSecretId: "67c2ef64-7c35-4755-8215-b400006d11d9"
-  clientStateSecretId: "818569df-98ab-46a2-83fc-b400006d8431"
   authEndpoint: "https://clerk.hunterwittenborn.com/oauth/authorize"
   tokenEndpoint: "https://clerk.hunterwittenborn.com/oauth/token"
   userInfoEndpoint: "https://clerk.hunterwittenborn.com/oauth/userinfo"
@@ -43,3 +38,17 @@ sso:
   userEmailAttribute: "email"
   adminId: "user_3AJzTWpt47JGfsAFiKnEi8MNmNI"
   autoRedirectToSSO: true
+
+secretsBootstrap:
+  secretName: litellm-secrets
+  data:
+    - secretKey: LITELLM_MASTER_KEY
+      remoteKey: "7cdf6cd2-6494-44b0-baa0-b3fe0103559e"
+    - secretKey: POSTGRES_PASSWORD
+      remoteKey: "455c490e-8db3-4ac1-a78c-b3fe01036ffa"
+    - secretKey: GENERIC_CLIENT_ID
+      remoteKey: "c8153b74-be28-484e-bb3e-b400006cfbfe"
+    - secretKey: GENERIC_CLIENT_SECRET
+      remoteKey: "67c2ef64-7c35-4755-8215-b400006d11d9"
+    - secretKey: GENERIC_CLIENT_STATE
+      remoteKey: "818569df-98ab-46a2-83fc-b400006d8431"
