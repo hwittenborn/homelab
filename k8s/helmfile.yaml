@@ -3,6 +3,8 @@ repositories:
     url: https://charts.external-secrets.io
   - name: cert-manager
     url: https://charts.jetstack.io
+  - name: vmware-tanzu
+    url: https://vmware-tanzu.github.io/helm-charts
 
 releases:
   - name: cert-manager
@@ -44,6 +46,64 @@ releases:
   - name: traefik-config
     namespace: kube-system
     chart: ./traefik
+
+  - name: rclone-s3
+    namespace: velero
+    chart: ./apps/rclone-s3
+    createNamespace: true
+    wait: true
+    timeout: 600
+    needs:
+      - external-secrets/eso-configuration
+
+  - name: velero
+    namespace: velero
+    chart: vmware-tanzu/velero
+    version: 12.0.0
+    createNamespace: true
+    wait: true
+    timeout: 600
+    values:
+      - ./velero.values.yaml
+    needs:
+      - velero/rclone-s3
+    hooks:
+      - events: ["presync"]
+        command: kubectl
+        args:
+          - wait
+          - --namespace
+          - velero
+          - --for=condition=Available
+          - deployment/rclone-s3
+          - --timeout=300s
+
+  - name: velero-config
+    namespace: velero
+    chart: ./apps/velero-config
+    wait: true
+    timeout: 600
+    needs:
+      - velero/velero
+    hooks:
+      - events: ["presync"]
+        command: kubectl
+        args:
+          - wait
+          - --namespace
+          - velero
+          - --for=condition=Available
+          - deployment/velero
+          - --timeout=300s
+      - events: ["presync"]
+        command: kubectl
+        args:
+          - wait
+          - --namespace
+          - velero
+          - --for=jsonpath={.status.phase}=Available
+          - backupstoragelocation/default
+          - --timeout=300s
 
   - name: litellm
     namespace: litellm

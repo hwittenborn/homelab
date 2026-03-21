@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "rclone-s3.fullname" . }}
+  labels:
+    {{- include "rclone-s3.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "rclone-s3.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "rclone-s3.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: rclone
+          image: {{ .Values.rclone.image }}
+          command:
+            - sh
+            - -ec
+            - |
+              export RCLONE_CONFIG=/config/rclone/{{ .Values.rclone.configSecretKey }}
+              exec rclone serve s3 {{ .Values.rclone.remote }} \
+                --addr={{ .Values.rclone.address }} \
+                --auth-key="${ACCESS_KEY},${SECRET_KEY}"
+          env:
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rclone.authSecretName }}
+                  key: access_key
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rclone.authSecretName }}
+                  key: secret_key
+          ports:
+            - name: s3
+              containerPort: 8080
+          readinessProbe:
+            tcpSocket:
+              port: s3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: s3
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.rclone.resources | nindent 12 }}
+          volumeMounts:
+            - name: rclone-config
+              mountPath: /config/rclone
+              readOnly: true
+      volumes:
+        - name: rclone-config
+          secret:
+            secretName: {{ .Values.rclone.configSecretName }}

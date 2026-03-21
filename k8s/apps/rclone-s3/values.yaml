@@ -1,0 +1,15 @@
+rclone:
+  image: rclone/rclone:1.69.1
+  remote: "gdrive:"
+  address: :8080
+  authSecretName: rclone-s3-auth
+  credentialsSecretName: cloud-credentials
+  configSecretName: rclone-config
+  configSecretKey: rclone.conf
+  bitwardenSecretId: "1f9c3e9d-8869-4dba-8656-b3fe0125535c"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
