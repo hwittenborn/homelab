@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kutt
+description: Kutt URL shortener with Postgres backend
+type: application
+version: 0.1.0
+appVersion: "latest"
+dependencies:
+  - name: secrets-bootstrap
+    version: 0.1.0
+    repository: file://../../lib/secrets-bootstrap

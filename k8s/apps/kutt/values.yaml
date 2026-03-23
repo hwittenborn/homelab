@@ -1,0 +1,57 @@
+kutt:
+  image: kutt/kutt:latest
+  siteName: Kutt
+  defaultDomain: kutt.hunterwittenborn.com
+  additionalHosts:
+    - go.hunterwittenborn.com
+  trustProxy: true
+  allowAnonymousLinks: false
+  allowRegistration: false
+  disableLoginForm: true
+  customDomainUseHttps: true
+  linkLength: 6
+  linkCustomAlphabet: abcdefghkmnpqrstuvwxyzABCDEFGHKLMNPQRSTUVWXYZ23456789
+  serverCnameAddress: go.hunterwittenborn.com
+  oidc:
+    enabled: true
+    issuer: https://clerk.hunterwittenborn.com
+    scope: openid profile email
+    emailClaim: email
+  mail:
+    enabled: false
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+postgres:
+  image: postgres:16
+  db: kutt
+  user: kutt
+  storage: 10Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+ingress:
+  enabled: true
+  className: traefik
+  clusterIssuer: letsencrypt-prod
+
+secretsBootstrap:
+  secretName: kutt-secrets
+  secretStoreName: doppler-secrets-kutt
+  data:
+    - secretKey: JWT_SECRET
+      remoteKey: JWT_SECRET
+    - secretKey: POSTGRES_PASSWORD
+      remoteKey: POSTGRES_PASSWORD
+    - secretKey: OIDC_CLIENT_ID
+      remoteKey: OIDC_CLIENT_ID
+    - secretKey: OIDC_CLIENT_SECRET
+      remoteKey: OIDC_CLIENT_SECRET

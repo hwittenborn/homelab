@@ -96,3 +96,10 @@ releases:
     createNamespace: true
     needs:
       - external-secrets/eso-configuration
+
+  - name: kutt
+    namespace: kutt
+    chart: ./apps/kutt
+    createNamespace: true
+    needs:
+      - external-secrets/eso-configuration

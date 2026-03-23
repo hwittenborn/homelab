@@ -1,0 +1,40 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kutt
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  tls:
+    - hosts:
+        - {{ .Values.kutt.defaultDomain }}
+{{- range .Values.kutt.additionalHosts }}
+        - {{ . }}
+{{- end }}
+      secretName: {{ include "kutt.tlsSecretName" . }}
+  rules:
+    - host: {{ .Values.kutt.defaultDomain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kutt
+                port:
+                  name: http
+{{- range .Values.kutt.additionalHosts }}
+    - host: {{ . }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kutt
+                port:
+                  name: http
+{{- end }}
+{{- end }}

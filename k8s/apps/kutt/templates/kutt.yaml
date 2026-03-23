@@ -1,0 +1,134 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kutt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kutt
+  template:
+    metadata:
+      labels:
+        app: kutt
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: {{ .Values.postgres.image }}
+          command:
+            - sh
+            - -ec
+            - |
+              until pg_isready -h postgres -p 5432 -U {{ .Values.postgres.user }} -d {{ .Values.postgres.db }}; do
+                sleep 2
+              done
+          env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kutt.secretName" . }}
+                  key: POSTGRES_PASSWORD
+      containers:
+        - name: kutt
+          image: {{ .Values.kutt.image }}
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: SITE_NAME
+              value: {{ .Values.kutt.siteName | quote }}
+            - name: DEFAULT_DOMAIN
+              value: {{ .Values.kutt.defaultDomain | quote }}
+            - name: TRUST_PROXY
+              value: {{ .Values.kutt.trustProxy | quote }}
+            - name: DISALLOW_ANONYMOUS_LINKS
+              value: {{ (not .Values.kutt.allowAnonymousLinks) | quote }}
+            - name: DISALLOW_REGISTRATION
+              value: {{ (not .Values.kutt.allowRegistration) | quote }}
+            - name: DISALLOW_LOGIN_FORM
+              value: {{ .Values.kutt.disableLoginForm | quote }}
+            - name: CUSTOM_DOMAIN_USE_HTTPS
+              value: {{ .Values.kutt.customDomainUseHttps | quote }}
+            - name: LINK_LENGTH
+              value: {{ .Values.kutt.linkLength | quote }}
+            - name: LINK_CUSTOM_ALPHABET
+              value: {{ .Values.kutt.linkCustomAlphabet | quote }}
+            - name: SERVER_CNAME_ADDRESS
+              value: {{ .Values.kutt.serverCnameAddress | quote }}
+            - name: DB_CLIENT
+              value: pg
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: {{ .Values.postgres.db | quote }}
+            - name: DB_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kutt.secretName" . }}
+                  key: POSTGRES_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kutt.secretName" . }}
+                  key: JWT_SECRET
+            - name: REDIS_ENABLED
+              value: "false"
+            - name: MAIL_ENABLED
+              value: {{ .Values.kutt.mail.enabled | quote }}
+            - name: OIDC_ENABLED
+              value: {{ .Values.kutt.oidc.enabled | quote }}
+            - name: OIDC_ISSUER
+              value: {{ .Values.kutt.oidc.issuer | quote }}
+            - name: OIDC_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kutt.secretName" . }}
+                  key: OIDC_CLIENT_ID
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "kutt.secretName" . }}
+                  key: OIDC_CLIENT_SECRET
+            - name: OIDC_SCOPE
+              value: {{ .Values.kutt.oidc.scope | quote }}
+            - name: OIDC_EMAIL_CLAIM
+              value: {{ .Values.kutt.oidc.emailClaim | quote }}
+            - name: NODE_ENV
+              value: production
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 45
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          resources:
+            {{- toYaml .Values.kutt.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kutt
+spec:
+  type: ClusterIP
+  selector:
+    app: kutt
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http
