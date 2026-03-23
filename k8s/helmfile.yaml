@@ -44,15 +44,6 @@ releases:
     namespace: kube-system
     chart: ./traefik
 
-  - name: rclone-s3
-    namespace: velero
-    chart: ./apps/rclone-s3
-    createNamespace: true
-    wait: true
-    timeout: 600
-    needs:
-      - external-secrets/eso-configuration
-
   - name: velero
     namespace: velero
     chart: vmware-tanzu/velero
@@ -63,17 +54,7 @@ releases:
     values:
       - ./velero.values.yaml
     needs:
-      - velero/rclone-s3
-    hooks:
-      - events: ["presync"]
-        command: kubectl
-        args:
-          - wait
-          - --namespace
-          - velero
-          - --for=condition=Available
-          - deployment/rclone-s3
-          - --timeout=300s
+      - external-secrets/eso-configuration
 
   - name: velero-config
     namespace: velero

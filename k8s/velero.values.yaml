@@ -14,13 +14,64 @@ configuration:
   backupStorageLocation:
     - name: default
       provider: aws
-      bucket: velero
+      bucket: hwittenborn-homelab
       default: true
       config:
-        region: minio
-        s3Url: http://rclone-s3.velero.svc.cluster.local:8080
+        region: us-east-1
+        s3Url: https://s3.wasabisys.com
         s3ForcePathStyle: "true"
+  volumeSnapshotLocation: []
 
 deployNodeAgent: true
 snapshotsEnabled: false
 defaultVolumesToFsBackup: true
+
+extraObjects:
+  - apiVersion: external-secrets.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: cloud-credentials
+      namespace: velero
+    spec:
+      refreshInterval: "1h"
+      secretStoreRef:
+        name: doppler-secrets-velero
+        kind: ClusterSecretStore
+      target:
+        name: cloud-credentials
+        creationPolicy: Owner
+        template:
+          engineVersion: v2
+          data:
+            cloud: |
+              [default]
+              aws_access_key_id={{ `{{ .S3_ACCESS_KEY }}` }}
+              aws_secret_access_key={{ `{{ .S3_SECRET_KEY }}` }}
+      data:
+        - secretKey: S3_ACCESS_KEY
+          remoteRef:
+            key: "S3_ACCESS_KEY"
+        - secretKey: S3_SECRET_KEY
+          remoteRef:
+            key: "S3_SECRET_KEY"
+  - apiVersion: external-secrets.io/v1
+    kind: ExternalSecret
+    metadata:
+      name: velero-repo-credentials
+      namespace: velero
+    spec:
+      refreshInterval: "1h"
+      secretStoreRef:
+        name: doppler-secrets-velero
+        kind: ClusterSecretStore
+      target:
+        name: velero-repo-credentials
+        creationPolicy: Owner
+        template:
+          engineVersion: v2
+          data:
+            repository-password: "{{ `{{ .VELERO_REPOSITORY_PASSWORD }}` }}"
+      data:
+        - secretKey: VELERO_REPOSITORY_PASSWORD
+          remoteRef:
+            key: "VELERO_REPOSITORY_PASSWORD"
