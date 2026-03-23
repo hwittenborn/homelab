@@ -2,6 +2,10 @@
 {{- required "secretsBootstrap.secretName is required" .Values.secretsBootstrap.secretName -}}
 {{- end }}
 
+{{- define "secrets-bootstrap.secretStoreName" -}}
+{{- required "secretsBootstrap.secretStoreName is required" .Values.secretsBootstrap.secretStoreName -}}
+{{- end }}
+
 {{- define "secrets-bootstrap.refreshInterval" -}}
 {{- default "1h" .Values.secretsBootstrap.refreshInterval -}}
 {{- end }}

@@ -21,9 +21,6 @@ releases:
     chart: external-secrets/external-secrets
     version: 2.0.1
     createNamespace: true
-    set:
-      - name: bitwarden-sdk-server.enabled
-        value: true
     needs:
       - cert-manager/cert-manager
 

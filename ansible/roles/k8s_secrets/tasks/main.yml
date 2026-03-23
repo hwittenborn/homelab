@@ -6,15 +6,15 @@
     kind: Namespace
     name: external-secrets
 
-- name: Create or update Bitwarden token secret
+- name: Create or update Doppler token secret
   kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
-        name: bitwarden-sm-token
+        name: doppler-token
         namespace: external-secrets
       type: Opaque
       stringData:
-        token: "{{ bitwarden_token }}"
+        dopplerToken: "{{ doppler_token }}"

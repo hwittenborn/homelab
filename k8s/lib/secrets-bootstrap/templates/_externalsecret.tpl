@@ -6,7 +6,7 @@ metadata:
 spec:
   refreshInterval: {{ include "secrets-bootstrap.refreshInterval" . | quote }}
   secretStoreRef:
-    name: bitwarden-cluster-store
+    name: {{ include "secrets-bootstrap.secretStoreName" . }}
     kind: ClusterSecretStore
   target:
     name: {{ include "secrets-bootstrap.secretName" . }}

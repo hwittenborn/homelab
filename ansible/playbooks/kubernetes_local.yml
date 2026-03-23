@@ -3,6 +3,8 @@
   hosts: localhost
   connection: local
   gather_facts: false
+  vars_files:
+    - ../vars/kubernetes_local.vault.yml
 
   roles:
-    - bitwarden_k8s_secrets
+    - k8s_secrets

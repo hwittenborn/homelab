@@ -6,7 +6,8 @@ rclone:
   credentialsSecretName: cloud-credentials
   configSecretName: rclone-config
   configSecretKey: rclone.conf
-  bitwardenSecretId: "1f9c3e9d-8869-4dba-8656-b3fe0125535c"
+  secretStoreName: doppler-secrets-velero
+  remoteKey: RCLONE_CONFIG
   resources:
     requests:
       cpu: 100m

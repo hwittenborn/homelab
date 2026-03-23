@@ -41,14 +41,15 @@ sso:
 
 secretsBootstrap:
   secretName: litellm-secrets
+  secretStoreName: doppler-secrets-litellm
   data:
     - secretKey: LITELLM_MASTER_KEY
-      remoteKey: "7cdf6cd2-6494-44b0-baa0-b3fe0103559e"
+      remoteKey: LITELLM_MASTER_KEY
     - secretKey: POSTGRES_PASSWORD
-      remoteKey: "455c490e-8db3-4ac1-a78c-b3fe01036ffa"
-    - secretKey: GENERIC_CLIENT_ID
-      remoteKey: "c8153b74-be28-484e-bb3e-b400006cfbfe"
-    - secretKey: GENERIC_CLIENT_SECRET
-      remoteKey: "67c2ef64-7c35-4755-8215-b400006d11d9"
-    - secretKey: GENERIC_CLIENT_STATE
-      remoteKey: "818569df-98ab-46a2-83fc-b400006d8431"
+      remoteKey: POSTGRES_PASSWORD
+    - secretKey: OIDC_CLIENT_ID
+      remoteKey: OIDC_CLIENT_ID
+    - secretKey: OIDC_CLIENT_SECRET
+      remoteKey: OIDC_CLIENT_SECRET
+    - secretKey: OIDC_CLIENT_STATE
+      remoteKey: OIDC_CLIENT_STATE

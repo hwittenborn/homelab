@@ -11,8 +11,7 @@ metadata:
 rules:
   - apiGroups: ["external-secrets.io"]
     resources: ["externalsecrets"]
-    resourceNames: [{{ include "secrets-bootstrap.secretName" . | quote }}]
-    verbs: ["get"]
+    verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources: ["secrets"]
     resourceNames: [{{ include "secrets-bootstrap.secretName" . | quote }}]

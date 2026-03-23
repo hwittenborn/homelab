@@ -30,8 +30,9 @@ ingress:
 
 secretsBootstrap:
   secretName: n8n-secrets
+  secretStoreName: doppler-secrets-n8n
   data:
-    - secretKey: DB_POSTGRESDB_PASSWORD
-      remoteKey: "0e46c0f8-8bef-4749-91f8-b414016a3bca"
+    - secretKey: POSTGRES_PASSWORD
+      remoteKey: POSTGRES_PASSWORD
     - secretKey: N8N_ENCRYPTION_KEY
-      remoteKey: "54407f93-969f-4f17-8c8a-b414016a6f75"
+      remoteKey: N8N_ENCRYPTION_KEY

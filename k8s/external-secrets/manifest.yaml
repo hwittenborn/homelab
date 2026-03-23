@@ -23,42 +23,47 @@ spec:
 apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
 metadata:
-  name: bitwarden-cluster-store
+  name: doppler-secrets-litellm
 spec:
   provider:
-    bitwardensecretsmanager:
-      apiURL: https://vault.bitwarden.com/api
-      identityURL: https://vault.bitwarden.com/identity
-      bitwardenServerSDKURL: "https://bitwarden-sdk-server.external-secrets.svc.cluster.local:9998"
-      organizationID: "8fd1fcdf-8a83-4f8b-a5e5-b2fc017132e6"
-      projectID: "790f7ba2-3f7f-45c3-a017-b3f201528bac"
-      caProvider:
-        type: Secret
-        name: bitwarden-tls-certs
-        namespace: external-secrets
-        key: ca.crt
+    doppler:
       auth:
         secretRef:
-          credentials:
-            name: bitwarden-sm-token
-            key: token
+          dopplerToken:
+            name: doppler-token
+            key: dopplerToken
             namespace: external-secrets
+      project: homelab
+      config: secrets_litellm
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
 metadata:
-  name: bitwarden-sdk-server-tls
-  namespace: external-secrets
+  name: doppler-secrets-n8n
 spec:
-  secretName: bitwarden-tls-certs
-  isCA: false
-  privateKey:
-    algorithm: RSA
-    encoding: PKCS1
-    size: 2048
-  dnsNames:
-    - bitwarden-sdk-server.external-secrets.svc.cluster.local
-  issuerRef:
-    name: selfsigned-issuer
-    kind: ClusterIssuer
-    group: cert-manager.io
+  provider:
+    doppler:
+      auth:
+        secretRef:
+          dopplerToken:
+            name: doppler-token
+            key: dopplerToken
+            namespace: external-secrets
+      project: homelab
+      config: secrets_n8n
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: doppler-secrets-velero
+spec:
+  provider:
+    doppler:
+      auth:
+        secretRef:
+          dopplerToken:
+            name: doppler-token
+            key: dopplerToken
+            namespace: external-secrets
+      project: homelab
+      config: secrets_velero
