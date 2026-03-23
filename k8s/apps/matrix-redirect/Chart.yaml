@@ -1,0 +1,6 @@
+apiVersion: v2
+name: matrix-redirect
+description: Redirect matrix.hunterwittenborn.com to the Matrix web client
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

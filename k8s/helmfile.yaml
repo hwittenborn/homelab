@@ -103,3 +103,26 @@ releases:
     createNamespace: true
     needs:
       - external-secrets/eso-configuration
+
+  - name: matrix
+    namespace: matrix
+    chart: oci://ghcr.io/element-hq/ess-helm/matrix-stack
+    version: 26.3.0
+    createNamespace: true
+    wait: true
+    timeout: 600
+    values:
+      - ./apps/matrix/values.yaml
+    needs:
+      - cert-manager/cert-manager
+      - kube-system/traefik-config
+
+  - name: matrix-redirect
+    namespace: matrix
+    chart: ./apps/matrix-redirect
+    wait: true
+    timeout: 600
+    values:
+      - ./apps/matrix-redirect/values.yaml
+    needs:
+      - matrix/matrix

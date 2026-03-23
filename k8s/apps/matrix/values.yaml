@@ -1,0 +1,35 @@
+serverName: hunterwittenborn.com
+
+certManager:
+  clusterIssuer: letsencrypt-prod
+
+ingress:
+  className: traefik
+
+elementAdmin:
+  ingress:
+    host: admin.matrix.hunterwittenborn.com
+
+elementWeb:
+  ingress:
+    host: chat.matrix.hunterwittenborn.com
+
+hookshot:
+  enabled: true
+  ingress:
+    host: hookshot.matrix.hunterwittenborn.com
+
+matrixAuthenticationService:
+  ingress:
+    host: account.matrix.hunterwittenborn.com
+
+matrixRTC:
+  ingress:
+    host: call.matrix.hunterwittenborn.com
+
+synapse:
+  ingress:
+    host: api.matrix.hunterwittenborn.com
+
+wellKnownDelegation:
+  enabled: false
