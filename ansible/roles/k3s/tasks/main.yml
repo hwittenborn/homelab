@@ -1,6 +1,6 @@
 ---
 - name: Run k3s installation script
-  shell: curl -sfL https://get.k3s.io | sh -
+  shell: curl -sfL https://get.k3s.io | sh -s - server --tls-san {{ inventory_hostname | regex_replace('^.*@', '') }}
   args:
     creates: /usr/local/bin/k3s
 
