@@ -24,7 +24,7 @@ postgres:
 
 ingress:
   enabled: true
-  className: traefik
+  className: nginx-private
   host: n8n.hunterwittenborn.com
   clusterIssuer: letsencrypt-prod
 

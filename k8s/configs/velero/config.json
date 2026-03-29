@@ -1,0 +1,8 @@
+{
+  "name": "velero",
+  "namespace": "velero",
+  "syncWave": "4",
+  "chart": "https://vmware-tanzu.github.io/helm-charts",
+  "chartName": "velero",
+  "version": "12.0.0"
+}

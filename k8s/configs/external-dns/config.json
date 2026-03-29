@@ -1,0 +1,8 @@
+{
+  "name": "external-dns",
+  "namespace": "external-dns",
+  "syncWave": "3",
+  "chart": "https://kubernetes-sigs.github.io/external-dns",
+  "chartName": "external-dns",
+  "version": "1.15.2"
+}

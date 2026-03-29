@@ -1,0 +1,19 @@
+---
+- name: Add ArgoCD Helm repo
+  shell: helm repo add argo https://argoproj.github.io/argo-helm && helm repo update argo
+
+- name: Install ArgoCD
+  shell: |
+    helm upgrade --install argocd argo/argo-cd \
+      --version 7.8.13 \
+      --namespace argocd \
+      --create-namespace \
+      --wait \
+      --timeout 300s \
+      --values {{ role_path }}/files/values.yaml
+
+- name: Apply ApplicationSets
+  shell: |
+    kubectl apply -f {{ playbook_dir }}/../../k8s/appset-configs.yaml
+    kubectl apply -f {{ playbook_dir }}/../../k8s/appset-configs-local.yaml
+    kubectl apply -f {{ playbook_dir }}/../../k8s/appset-apps.yaml

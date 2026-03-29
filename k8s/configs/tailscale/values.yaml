@@ -1,0 +1,14 @@
+oauth: {}
+
+oauthSecretVolume:
+  secret:
+    secretName: tailscale-oauth
+    items:
+      - key: clientId
+        path: client_id
+      - key: clientSecret
+        path: client_secret
+
+operatorConfig:
+  defaultTags:
+    - "tag:k8s"

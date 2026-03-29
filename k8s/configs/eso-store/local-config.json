@@ -1,0 +1,6 @@
+{
+  "name": "eso-store",
+  "namespace": "external-secrets",
+  "syncWave": "1",
+  "local": true
+}

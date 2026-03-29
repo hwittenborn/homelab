@@ -1,0 +1,17 @@
+controller:
+  ingressClassResource:
+    name: nginx-public
+    controllerValue: k8s.io/ingress-nginx-public
+  ingressClass: nginx-public
+  electionID: nginx-public-leader
+
+  hostNetwork: true
+  hostPort:
+    enabled: true
+
+  service:
+    type: ClusterIP
+
+  config:
+    use-forwarded-headers: "true"
+    compute-full-forwarded-for: "true"

@@ -1,0 +1,8 @@
+{
+  "name": "cert-manager",
+  "namespace": "cert-manager",
+  "syncWave": "0",
+  "chart": "https://charts.jetstack.io",
+  "chartName": "cert-manager",
+  "version": "v1.17.2"
+}

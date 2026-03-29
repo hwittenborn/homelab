@@ -1,0 +1,31 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: tailscale-oauth
+  namespace: tailscale
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    name: doppler-secrets-infra
+    kind: ClusterSecretStore
+  target:
+    name: tailscale-oauth
+    creationPolicy: Owner
+  data:
+    - secretKey: clientId
+      remoteRef:
+        key: TAILSCALE_CLIENT_ID
+    - secretKey: clientSecret
+      remoteRef:
+        key: TAILSCALE_CLIENT_SECRET
+---
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: homelab-subnet-router
+spec:
+  subnetRouter:
+    advertiseRoutes:
+      - "10.42.0.0/16"
+  tags:
+    - "tag:k8s"

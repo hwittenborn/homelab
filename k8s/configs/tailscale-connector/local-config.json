@@ -1,0 +1,6 @@
+{
+  "name": "tailscale-connector",
+  "namespace": "tailscale",
+  "syncWave": "2",
+  "local": true
+}

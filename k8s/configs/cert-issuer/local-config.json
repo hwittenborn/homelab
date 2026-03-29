@@ -1,0 +1,6 @@
+{
+  "name": "cert-issuer",
+  "namespace": "cert-manager",
+  "syncWave": "1",
+  "local": true
+}

@@ -4,3 +4,14 @@
   become: true
   roles:
     - k3s
+
+- name: Bootstrap ArgoCD and cluster secrets
+  hosts: localhost
+  connection: local
+  become: false
+  gather_facts: false
+  vars_files:
+    - ../vars/kubernetes_local.vault.yml
+  roles:
+    - k8s_secrets
+    - argocd

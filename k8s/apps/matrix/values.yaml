@@ -4,7 +4,7 @@ certManager:
   clusterIssuer: letsencrypt-prod
 
 ingress:
-  className: traefik
+  className: nginx-public
 
 elementAdmin:
   ingress:

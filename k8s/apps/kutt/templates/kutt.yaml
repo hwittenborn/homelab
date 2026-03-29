@@ -83,22 +83,6 @@ spec:
               value: {{ .Values.kutt.mail.enabled | quote }}
             - name: OIDC_ENABLED
               value: {{ .Values.kutt.oidc.enabled | quote }}
-            - name: OIDC_ISSUER
-              value: {{ .Values.kutt.oidc.issuer | quote }}
-            - name: OIDC_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "kutt.secretName" . }}
-                  key: OIDC_CLIENT_ID
-            - name: OIDC_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "kutt.secretName" . }}
-                  key: OIDC_CLIENT_SECRET
-            - name: OIDC_SCOPE
-              value: {{ .Values.kutt.oidc.scope | quote }}
-            - name: OIDC_EMAIL_CLAIM
-              value: {{ .Values.kutt.oidc.emailClaim | quote }}
             - name: NODE_ENV
               value: production
           livenessProbe:

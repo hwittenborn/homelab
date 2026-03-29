@@ -1,0 +1,8 @@
+{
+  "name": "matrix",
+  "namespace": "matrix",
+  "syncWave": "5",
+  "chart": "ghcr.io/element-hq/ess-helm",
+  "chartName": "matrix-stack",
+  "version": "26.3.0"
+}

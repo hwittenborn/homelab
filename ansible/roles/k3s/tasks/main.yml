@@ -1,8 +1,11 @@
 ---
-- name: Run k3s installation script
-  shell: curl -sfL https://get.k3s.io | sh -s - server --tls-san {{ inventory_hostname | regex_replace('^.*@', '') }}
+- name: Uninstall existing k3s
+  shell: /usr/local/bin/k3s-uninstall.sh
   args:
-    creates: /usr/local/bin/k3s
+    removes: /usr/local/bin/k3s
+
+- name: Run k3s installation script
+  shell: curl -sfL https://get.k3s.io | sh -s - server --tls-san {{ inventory_hostname | regex_replace('^.*@', '') }} --disable=traefik
 
 - name: Wait for kubeconfig to be generated
   wait_for:

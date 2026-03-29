@@ -7,16 +7,13 @@ kutt:
   trustProxy: true
   allowAnonymousLinks: false
   allowRegistration: false
-  disableLoginForm: true
+  disableLoginForm: false
   customDomainUseHttps: true
   linkLength: 6
   linkCustomAlphabet: abcdefghkmnpqrstuvwxyzABCDEFGHKLMNPQRSTUVWXYZ23456789
   serverCnameAddress: go.hunterwittenborn.com
   oidc:
-    enabled: true
-    issuer: https://clerk.hunterwittenborn.com
-    scope: openid profile email
-    emailClaim: email
+    enabled: false
   mail:
     enabled: false
   resources:
@@ -40,7 +37,7 @@ postgres:
 
 ingress:
   enabled: true
-  className: traefik
+  className: nginx-public
   clusterIssuer: letsencrypt-prod
 
 secretsBootstrap:
@@ -51,7 +48,3 @@ secretsBootstrap:
       remoteKey: JWT_SECRET
     - secretKey: POSTGRES_PASSWORD
       remoteKey: POSTGRES_PASSWORD
-    - secretKey: OIDC_CLIENT_ID
-      remoteKey: OIDC_CLIENT_ID
-    - secretKey: OIDC_CLIENT_SECRET
-      remoteKey: OIDC_CLIENT_SECRET

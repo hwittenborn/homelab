@@ -1,0 +1,8 @@
+{
+  "name": "external-secrets",
+  "namespace": "external-secrets",
+  "syncWave": "0",
+  "chart": "https://charts.external-secrets.io",
+  "chartName": "external-secrets",
+  "version": "0.14.3"
+}
