@@ -11,6 +11,8 @@ elementAdmin:
     host: admin.matrix.hunterwittenborn.com
 
 elementWeb:
+  additional:
+    disable_custom_urls: true
   ingress:
     host: chat.matrix.hunterwittenborn.com
 
