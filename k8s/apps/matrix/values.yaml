@@ -32,6 +32,8 @@ matrixRTC:
 synapse:
   ingress:
     host: api.matrix.hunterwittenborn.com
+    annotations:
+      nginx.ingress.kubernetes.io/proxy-body-size: "100m"
 
 wellKnownDelegation:
   enabled: false
