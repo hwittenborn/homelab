@@ -75,3 +75,45 @@ extraObjects:
         - secretKey: VELERO_REPOSITORY_PASSWORD
           remoteRef:
             key: "VELERO_REPOSITORY_PASSWORD"
+  - apiVersion: velero.io/v1
+    kind: Schedule
+    metadata:
+      name: hourly
+      namespace: velero
+    spec:
+      schedule: "0 0-2,4-23 * * *"
+      template:
+        includedNamespaces:
+          - '*'
+        includeClusterResources: true
+        storageLocation: default
+        defaultVolumesToFsBackup: true
+        ttl: 12h0m0s
+  - apiVersion: velero.io/v1
+    kind: Schedule
+    metadata:
+      name: daily
+      namespace: velero
+    spec:
+      schedule: "0 3 * * 0-5"
+      template:
+        includedNamespaces:
+          - '*'
+        includeClusterResources: true
+        storageLocation: default
+        defaultVolumesToFsBackup: true
+        ttl: 168h0m0s
+  - apiVersion: velero.io/v1
+    kind: Schedule
+    metadata:
+      name: weekly
+      namespace: velero
+    spec:
+      schedule: "0 3 * * 6"
+      template:
+        includedNamespaces:
+          - '*'
+        includeClusterResources: true
+        storageLocation: default
+        defaultVolumesToFsBackup: true
+        ttl: 2016h0m0s
