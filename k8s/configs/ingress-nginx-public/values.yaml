@@ -9,6 +9,9 @@ controller:
   hostPort:
     enabled: true
 
+  extraArgs:
+    publish-status-address: homelab.hunterwittenborn.com
+
   service:
     type: ClusterIP
 
