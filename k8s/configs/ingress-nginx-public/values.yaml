@@ -15,6 +15,9 @@ controller:
   extraArgs:
     publish-status-address: homelab.hunterwittenborn.com
 
+  publishService:
+    enabled: false
+
   service:
     type: ClusterIP
 
