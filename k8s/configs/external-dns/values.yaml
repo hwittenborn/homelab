@@ -11,6 +11,9 @@ env:
 sources:
   - ingress
 
+domainFilters:
+  - hunterwittenborn.com
+
 policy: sync
 
 txtOwnerId: hwittenborn-homelab
