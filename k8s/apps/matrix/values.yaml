@@ -12,7 +12,7 @@ elementAdmin:
 
 elementWeb:
   additional:
-    disable_custom_urls: true
+    disable_custom_urls: "true"
   ingress:
     host: chat.matrix.hunterwittenborn.com
 
