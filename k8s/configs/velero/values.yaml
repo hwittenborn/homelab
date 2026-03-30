@@ -117,3 +117,238 @@ extraObjects:
         storageLocation: default
         defaultVolumesToFsBackup: true
         ttl: 2016h0m0s
+  # --- Backup monitoring ---
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: velero-monitor
+      namespace: velero
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: velero-monitor
+    rules:
+      - apiGroups: ["velero.io"]
+        resources: ["backups", "schedules"]
+        verbs: ["get", "list"]
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: velero-monitor
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: velero-monitor
+    subjects:
+      - kind: ServiceAccount
+        name: velero-monitor
+        namespace: velero
+  - apiVersion: v1
+    kind: Secret
+    metadata:
+      name: velero-monitor-webhook
+      namespace: velero
+    stringData:
+      url: "https://hookshot.matrix.hunterwittenborn.com/webhook/4126485f-9536-4469-872d-d5602562f1fb"
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: velero-monitor-scripts
+      namespace: velero
+    data:
+      check-failures.sh: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        send() {
+          curl -sf -X POST "$WEBHOOK_URL" -H "Content-Type: application/json" -d "{\"text\": \"$1\"}"
+        }
+
+        trap 'send "---\n⚠️ Velero Monitor Error @room\n\nThe backup monitoring script failed to run. Check the \`velero-monitor-failures\` CronJob logs."' ERR
+
+        NOW=$(date +%s)
+
+        format_age() {
+          local secs=$1
+          if [ "$secs" -lt 3600 ]; then
+            echo "$((secs / 60))m ago"
+          elif [ "$secs" -lt 86400 ]; then
+            echo "$((secs / 3600))h ago"
+          else
+            echo "$((secs / 86400))d ago"
+          fi
+        }
+
+        capitalize() {
+          echo "$1" | sed 's/./\U&/'
+        }
+
+        # Check for failed backups
+        BACKUPS_JSON=$(kubectl get backups.velero.io -n velero -o json)
+        FAILED=$(echo "$BACKUPS_JSON" | jq -r '[.items[] | select(.status.phase == "Failed" or .status.phase == "PartiallyFailed" or .status.phase == "FailedValidation") | {name: .metadata.name, schedule: .metadata.labels["velero.io/schedule-name"], phase: .status.phase, errors: (.status.errors // 0), warnings: (.status.warnings // 0), started: .status.startTimestamp}]')
+        FAILED_COUNT=$(echo "$FAILED" | jq 'length')
+
+        FAILED_TABLE=""
+        if [ "$FAILED_COUNT" -gt 0 ]; then
+          FAILED_TABLE="**Failed backups:**\n\n| Backup | Schedule | Phase | Age | Errors | Warnings |\n|--------|----------|-------|-----|--------|----------|\n"
+          for i in $(seq 0 $((FAILED_COUNT - 1))); do
+            NAME=$(echo "$FAILED" | jq -r ".[$i].name")
+            SCHEDULE=$(echo "$FAILED" | jq -r ".[$i].schedule")
+            PHASE=$(echo "$FAILED" | jq -r ".[$i].phase")
+            ERRORS=$(echo "$FAILED" | jq -r ".[$i].errors")
+            WARNINGS=$(echo "$FAILED" | jq -r ".[$i].warnings")
+            STARTED=$(echo "$FAILED" | jq -r ".[$i].started")
+            AGE=$(format_age $((NOW - $(date -d "$STARTED" +%s))))
+            FAILED_TABLE="${FAILED_TABLE}| \`${NAME}\` | $(capitalize "$SCHEDULE") | ${PHASE} | ${AGE} | ${ERRORS} | ${WARNINGS} |\n"
+          done
+        fi
+
+        # Check for stale schedules
+        SCHEDULES_JSON=$(kubectl get schedules.velero.io -n velero -o json)
+        STALE_MSG=""
+
+        declare -A THRESHOLDS=( ["hourly"]=7200 ["daily"]=90000 ["weekly"]=608400 )
+
+        for SCHED in hourly daily weekly; do
+          LAST_BACKUP=$(echo "$SCHEDULES_JSON" | jq -r ".items[] | select(.metadata.name == \"$SCHED\") | .status.lastBackup")
+          if [ "$LAST_BACKUP" = "null" ] || [ -z "$LAST_BACKUP" ]; then
+            continue
+          fi
+          LAST_TS=$(date -d "$LAST_BACKUP" +%s)
+          AGE_SECS=$((NOW - LAST_TS))
+          THRESHOLD=${THRESHOLDS[$SCHED]}
+          if [ "$AGE_SECS" -gt "$THRESHOLD" ]; then
+            AGE_STR=$(format_age "$AGE_SECS")
+            STALE_MSG="${STALE_MSG}- **$(capitalize "$SCHED")**: last backup ${AGE_STR}\n"
+          fi
+        done
+
+        # Build and send message
+        if [ -n "$FAILED_TABLE" ] && [ -n "$STALE_MSG" ]; then
+          send "---\n❌ Velero Issues Detected @room\n\n${FAILED_TABLE}\n**Stale schedules:**\n${STALE_MSG}"
+        elif [ -n "$FAILED_TABLE" ]; then
+          send "---\n❌ Velero Backup Failure @room\n\n${FAILED_TABLE}"
+        elif [ -n "$STALE_MSG" ]; then
+          send "---\n⚠️ Velero Stale Schedule @room\n\n**Stale schedules:**\n${STALE_MSG}"
+        fi
+      daily-summary.sh: |
+        #!/usr/bin/env bash
+        set -euo pipefail
+
+        send() {
+          curl -sf -X POST "$WEBHOOK_URL" -H "Content-Type: application/json" -d "{\"text\": \"$1\"}"
+        }
+
+        trap 'send "---\n⚠️ Velero Monitor Error @room\n\nThe daily backup summary script failed to run. Check the \`velero-monitor-summary\` CronJob logs."' ERR
+
+        NOW=$(date +%s)
+
+        format_age() {
+          local secs=$1
+          if [ "$secs" -lt 3600 ]; then
+            echo "$((secs / 60))m ago"
+          elif [ "$secs" -lt 86400 ]; then
+            echo "$((secs / 3600))h ago"
+          elif [ "$secs" -lt 604800 ]; then
+            echo "$((secs / 86400))d ago"
+          else
+            echo "$((secs / 604800))w ago"
+          fi
+        }
+
+        capitalize() {
+          echo "$1" | sed 's/./\U&/'
+        }
+
+        BACKUPS_JSON=$(kubectl get backups.velero.io -n velero -o json)
+
+        # Check if any backups are not Completed
+        NON_COMPLETED=$(echo "$BACKUPS_JSON" | jq '[.items[] | select(.status.phase != "Completed" and .status.phase != "InProgress")]')
+        if [ "$(echo "$NON_COMPLETED" | jq 'length')" -gt 0 ]; then
+          exit 0
+        fi
+
+        TABLE="| Schedule | Count | Latest | Oldest | Errors | Warnings |\n|----------|-------|--------|--------|--------|----------|\n"
+
+        for SCHED in hourly daily weekly; do
+          SCHED_BACKUPS=$(echo "$BACKUPS_JSON" | jq "[.items[] | select(.metadata.labels[\"velero.io/schedule-name\"] == \"$SCHED\")]")
+          COUNT=$(echo "$SCHED_BACKUPS" | jq 'length')
+
+          if [ "$COUNT" -eq 0 ]; then
+            TABLE="${TABLE}| $(capitalize "$SCHED") | 0 | - | - | 0 | 0 |\n"
+            continue
+          fi
+
+          ERRORS=$(echo "$SCHED_BACKUPS" | jq '[.[].status.errors // 0] | add')
+          WARNINGS=$(echo "$SCHED_BACKUPS" | jq '[.[].status.warnings // 0] | add')
+
+          LATEST_TS=$(echo "$SCHED_BACKUPS" | jq -r '[.[].status.startTimestamp] | sort | last')
+          OLDEST_TS=$(echo "$SCHED_BACKUPS" | jq -r '[.[].status.startTimestamp] | sort | first')
+
+          LATEST_AGE=$(format_age $((NOW - $(date -d "$LATEST_TS" +%s))))
+          OLDEST_AGE=$(format_age $((NOW - $(date -d "$OLDEST_TS" +%s))))
+
+          TABLE="${TABLE}| $(capitalize "$SCHED") | ${COUNT} | ${LATEST_AGE} | ${OLDEST_AGE} | ${ERRORS} | ${WARNINGS} |\n"
+        done
+
+        send "---\n✅ Velero Daily Backup Report\n\nAll backups healthy.\n\n${TABLE}"
+  - apiVersion: batch/v1
+    kind: CronJob
+    metadata:
+      name: velero-monitor-failures
+      namespace: velero
+    spec:
+      schedule: "0 * * * *"
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              serviceAccountName: velero-monitor
+              containers:
+                - name: check
+                  image: bitnami/kubectl:latest
+                  command: ["bash", "/scripts/check-failures.sh"]
+                  env:
+                    - name: WEBHOOK_URL
+                      valueFrom:
+                        secretKeyRef:
+                          name: velero-monitor-webhook
+                          key: url
+                  volumeMounts:
+                    - name: scripts
+                      mountPath: /scripts
+              volumes:
+                - name: scripts
+                  configMap:
+                    name: velero-monitor-scripts
+              restartPolicy: OnFailure
+  - apiVersion: batch/v1
+    kind: CronJob
+    metadata:
+      name: velero-monitor-summary
+      namespace: velero
+    spec:
+      schedule: "0 9 * * *"
+      jobTemplate:
+        spec:
+          template:
+            spec:
+              serviceAccountName: velero-monitor
+              containers:
+                - name: summary
+                  image: bitnami/kubectl:latest
+                  command: ["bash", "/scripts/daily-summary.sh"]
+                  env:
+                    - name: WEBHOOK_URL
+                      valueFrom:
+                        secretKeyRef:
+                          name: velero-monitor-webhook
+                          key: url
+                  volumeMounts:
+                    - name: scripts
+                      mountPath: /scripts
+              volumes:
+                - name: scripts
+                  configMap:
+                    name: velero-monitor-scripts
+              restartPolicy: OnFailure
