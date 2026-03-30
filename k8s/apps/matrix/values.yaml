@@ -20,6 +20,19 @@ hookshot:
   enabled: true
   ingress:
     host: hookshot.matrix.hunterwittenborn.com
+  additional:
+    0-generic:
+      config: |
+        generic:
+          enabled: true
+          urlPrefix: https://hookshot.matrix.hunterwittenborn.com/webhook/
+    1-permissions:
+      config: |
+        permissions:
+          - actor: "@hunter:hunterwittenborn.com"
+            services:
+              - service: "*"
+                level: admin
 
 matrixAuthenticationService:
   ingress:
