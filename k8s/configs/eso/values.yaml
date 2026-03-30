@@ -1,4 +1,3 @@
-installCRDs: true
-
-serviceAccount:
-  name: external-secrets
+crds:
+  createClusterExternalSecret: true
+  createClusterSecretStore: true
