@@ -4,6 +4,7 @@ kutt:
   defaultDomain: kutt.hunterwittenborn.com
   additionalHosts:
     - go.hunterwittenborn.com
+    - go.koca.dev
   trustProxy: true
   allowAnonymousLinks: false
   allowRegistration: false
