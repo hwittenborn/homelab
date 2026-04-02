@@ -1,4 +1,6 @@
 controller:
+  admissionWebhooks:
+    enabled: false
   ingressClassResource:
     name: nginx-public
     controllerValue: k8s.io/ingress-nginx-public
