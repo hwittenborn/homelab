@@ -43,6 +43,9 @@ matrixRTC:
     host: call.matrix.hunterwittenborn.com
 
 synapse:
+  appservices:
+    - secret: heisenbridge-secrets
+      secretKey: registration.yaml
   ingress:
     host: api.matrix.hunterwittenborn.com
     annotations:

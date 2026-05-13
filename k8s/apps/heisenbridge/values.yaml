@@ -1,0 +1,8 @@
+heisenbridge:
+  image: hif1/heisenbridge:latest
+  owner: "@hunter:hunterwittenborn.com"
+  homeserverUrl: "http://matrix-synapse:8008"
+
+secretsBootstrap:
+  secretName: heisenbridge-secrets
+  secretStoreName: doppler-secrets-heisenbridge
