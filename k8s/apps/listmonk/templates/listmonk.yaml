@@ -65,16 +65,6 @@ spec:
               value: {{ .Values.postgres.db | quote }}
             - name: LISTMONK_db__ssl_mode
               value: disable
-            - name: LISTMONK_ADMIN_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "listmonk.secretName" . }}
-                  key: LISTMONK_ADMIN_USER
-            - name: LISTMONK_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "listmonk.secretName" . }}
-                  key: LISTMONK_ADMIN_PASSWORD
       containers:
         - name: listmonk
           image: {{ .Values.listmonk.image }}

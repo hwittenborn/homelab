@@ -46,7 +46,3 @@ secretsBootstrap:
   data:
     - secretKey: POSTGRES_PASSWORD
       remoteKey: POSTGRES_PASSWORD
-    - secretKey: LISTMONK_ADMIN_USER
-      remoteKey: LISTMONK_ADMIN_USER
-    - secretKey: LISTMONK_ADMIN_PASSWORD
-      remoteKey: LISTMONK_ADMIN_PASSWORD
