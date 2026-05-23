@@ -5,6 +5,7 @@ metadata:
   name: listmonk-private
   annotations:
     cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer }}
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
 spec:
   ingressClassName: {{ .Values.ingress.private.className }}
   tls:
