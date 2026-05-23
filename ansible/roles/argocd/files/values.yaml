@@ -1,6 +1,7 @@
 configs:
   params:
     server.insecure: true
+    controller.diff.server.side: "true"
   cm:
     application.resourceTrackingMethod: annotation
     resource.customizations.ignoreDifferences.admissionregistration.k8s.io_MutatingWebhookConfiguration: |
