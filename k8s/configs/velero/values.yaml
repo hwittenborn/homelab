@@ -32,6 +32,8 @@ extraObjects:
     metadata:
       name: cloud-credentials
       namespace: velero
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
     spec:
       refreshInterval: "1h"
       secretStoreRef:
@@ -59,6 +61,8 @@ extraObjects:
     metadata:
       name: velero-repo-credentials
       namespace: velero
+      annotations:
+        argocd.argoproj.io/sync-wave: "-1"
     spec:
       refreshInterval: "1h"
       secretStoreRef:
